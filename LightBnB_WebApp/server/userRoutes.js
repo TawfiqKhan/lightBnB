@@ -12,6 +12,7 @@ module.exports = function(router, database) {
         res.send({error: "error"});
         return;
       }
+      console.log(user)
       req.session.userId = user.id;
       res.send("🤗");
     })
