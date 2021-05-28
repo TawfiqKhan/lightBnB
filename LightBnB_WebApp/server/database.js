@@ -108,27 +108,27 @@ const getAllProperties = function (options, limit = 10) {
     FROM properties
     JOIN property_reviews ON properties.id = property_id
   `;
-  if(ownerID){
+  if (ownerID) {
     queryParams.push(ownerID)
     queryString += `WHERE owner_id = $${queryParams.length}`
   }
 
-  if(city) {
+  if (city) {
     queryParams.push(`%${city}%`)
     queryString += `WHERE CITY LIKE $${queryParams.length}`
   }
-  if(minPrice) {
+  if (minPrice) {
     queryParams.push(minPrice * 100)
     queryString += ` AND cost_per_night > $${queryParams.length}`
   }
-  if(maxPrice) {
+  if (maxPrice) {
     queryParams.push(maxPrice * 100)
     queryString += ` AND cost_per_night < $${queryParams.length}`
   }
   queryString += `
   GROUP BY properties.id
   `
-  if(rating) {
+  if (rating) {
     queryParams.push(rating)
     queryString += `HAVING avg(property_reviews.rating) >= $${queryParams.length}`
   }
@@ -160,27 +160,33 @@ const addProperty = function (property) {
     city,
     province,
     post_code,
-    owner_id} = property
+    owner_id } = property
 
-return pool
-  .query(`
-  INSERT INTO properties(title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, parking_spaces, number_of_bathrooms, 
+  return pool
+    .query(`
+  INSERT INTO properties(owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, parking_spaces, number_of_bathrooms, 
     number_of_bedrooms, country, street, city, province, post_code)
-  VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+  VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
   RETURNING *
-  `, [  title,
-  description,
-  number_of_bedrooms,
-  number_of_bathrooms,
-  parking_spaces,
-  cost_per_night,
-  thumbnail_photo_url,
-  cover_photo_url,
-  street,
-  country,
-  city,
-  province,
-  post_code])
-  .then(res => res.rows[0])
+  `, [
+      owner_id,
+      title,
+      description,
+      thumbnail_photo_url,
+      cover_photo_url,
+      cost_per_night,
+      parking_spaces,
+      number_of_bathrooms,
+      number_of_bedrooms,
+      country,
+      street,
+      city,
+      province,
+      post_code
+    ])
+    .then(res => {
+      console.log(res.rows[0])
+      return res.rows[0]
+    })
 }
 exports.addProperty = addProperty;
